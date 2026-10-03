@@ -98,6 +98,7 @@ jobs:
           Copy-Item "work\bin\Release\NpcAiTalk.dll" "build_artifact\NpcAiTalk.dll"
           Copy-Item "work\NpcAiTalk.ini" "build_artifact\NpcAiTalk.ini"
           Copy-Item "README.md" "build_artifact\README.md"
+          Copy-Item "LICENSE" "build_artifact\LICENSE.txt"
           Compress-Archive -Path "build_artifact\*" -DestinationPath "NPC_AI_TALK_ACTION_JACKSON.zip" -Force
 
       - name: Upload compiled plugin
