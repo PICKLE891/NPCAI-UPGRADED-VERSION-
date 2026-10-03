@@ -108,10 +108,12 @@ jobs:
           Copy-Item "work\bin\Release\NpcAiTalk.dll" "public_release\NpcAiTalk.dll"
           Copy-Item "work\NpcAiTalk.ini" "public_release\NpcAiTalk.ini"
           Copy-Item "README.md" "public_release\README.md"
+          Copy-Item "LICENSE" "public_release\LICENSE.txt"
           Compress-Archive -Path "public_release\*" -DestinationPath "NPC_AI_TALK_ACTION_JACKSON_$env:RELEASE_VERSION.zip" -Force
 
           New-Item -ItemType Directory -Force updater_release | Out-Null
           Copy-Item "work\bin\Release\NpcAiTalk.dll" "updater_release\NpcAiTalk.dll"
+          Copy-Item "LICENSE" "updater_release\LICENSE.txt"
           Compress-Archive -Path "updater_release\*" -DestinationPath "NpcAiTalk_Update.zip" -Force
 
       - name: Publish or update GitHub Release
@@ -125,6 +127,7 @@ jobs:
               "$installZip" `
               "NpcAiTalk_Update.zip" `
               "release-assets/README.txt#README.txt" `
+              "LICENSE#LICENSE.txt" `
               --repo "$env:GITHUB_REPOSITORY" `
               --clobber
             gh release edit "$env:RELEASE_VERSION" `
@@ -136,6 +139,7 @@ jobs:
               "$installZip" `
               "NpcAiTalk_Update.zip" `
               "release-assets/README.txt#README.txt" `
+              "LICENSE#LICENSE.txt" `
               --repo "$env:GITHUB_REPOSITORY" `
               --title "NPC AI Talk $env:RELEASE_VERSION - ACTION JACKSON" `
               --notes-file "RELEASE_NOTES_v1.4.0.md" `
