@@ -4,18 +4,18 @@ AI-powered NPC interaction plugin project for **GTA V / LSPDFR / RAGE Plugin Hoo
 
 ## Highlights
 
+- Works **without an OpenAI API key** using local command/response logic, Windows Speech Recognition, and Windows TTS
+- Optional OpenAI-powered conversations, transcription, multilingual replies, and voice when a key is configured
 - Talk to civilians and suspects
 - LEO / backup officer conversations
 - Fire / EMS conversations
 - Air-unit conversations
 - Exact target lock
 - Soft-spoken officer support
-- Multilingual transcription and same-language NPC replies
 - Autonomous backup behavior
 - Backup officers assess a scene, take useful positions, then ask the primary officer what to do next
 - Safer Code 3 pursuit-driving logic
 - Short per-NPC conversation memory
-- OpenAI voice output with Windows TTS fallback
 - GitHub Releases auto-updater
 - **GitHub Actions builds the DLL automatically — no developer PC required for compilation**
 
@@ -37,17 +37,7 @@ That artifact contains the compiled plugin ZIP.
 
 ## Automatic release
 
-To publish a release, create/push a version tag such as:
-
-`v1.4.0`
-
-The **Publish NPC AI Talk Release** workflow will:
-
-1. Restore the public RAGE Plugin Hook SDK from NuGet
-2. Build `NpcAiTalk.dll`
-3. Create the public install ZIP
-4. Create `NpcAiTalk_Update.zip`
-5. Publish both files to the GitHub Release
+The release workflow builds `NpcAiTalk.dll`, creates the public install ZIP and updater ZIP, and publishes them to the GitHub Release.
 
 The in-game updater is preconfigured for:
 
@@ -67,17 +57,23 @@ This build does **not** require `LSPD First Response.dll` at compile time.
 
 LSPDFR APIs are discovered at runtime using reflection. If LSPDFR is loaded, the plugin can use available traffic-stop, stopped-ped, pursuit and persona context. If an API call is unavailable, the plugin falls back to direct RAGE entity targeting instead of failing to load.
 
-## OpenAI API key
+## OpenAI API key — optional
 
-Players should use their own OpenAI API key. The key is not stored in this repository.
+**An OpenAI API key is not required to run NPC AI Talk.**
 
-Windows:
+Without a key, the plugin uses local command/response logic plus Windows Speech Recognition and Windows TTS. This supports common civilian, suspect, LEO, Fire, EMS, and air-unit commands without making OpenAI API calls.
+
+A key is optional and enables the advanced OpenAI conversation/transcription/voice path.
+
+If you choose to use those advanced features, set the key in Windows:
 
 ```bat
 setx OPENAI_API_KEY "YOUR_OPENAI_API_KEY"
 ```
 
 Restart RAGE Plugin Hook / GTA V after setting it.
+
+**Keep your API key private. Never put it in the INI, Discord, screenshots, GitHub Issues, or logs.**
 
 ## Controls
 
