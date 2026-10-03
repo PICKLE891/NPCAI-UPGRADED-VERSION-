@@ -58,6 +58,11 @@ jobs:
         run: |
           .\build-patches\apply-no-key-fallback.ps1 -WorkRoot "work"
 
+      - name: Apply hands-free traffic-stop mode
+        shell: pwsh
+        run: |
+          .\build-patches\apply-handsfree-stop.ps1 -WorkRoot "work"
+
       - name: Upload source snapshot
         uses: actions/upload-artifact@v4
         with:
