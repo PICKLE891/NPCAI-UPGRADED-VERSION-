@@ -4,20 +4,34 @@
 
 NPC AI Talk v1.4.0 has been compiled successfully with GitHub Actions and is available for download. Real in-game GTA V/LSPDFR testing is still recommended before treating this build as fully stable.
 
+## No API Key Required
+
+NPC AI Talk now works without an OpenAI API key.
+
+Without a key, it uses:
+
+- Local command/response logic
+- Windows Speech Recognition for officer voice input
+- Windows TTS for NPC/responder voice output
+- Built-in civilian/suspect commands
+- Built-in LEO, Fire, EMS, and air-unit responses
+
+Adding an OpenAI API key is **optional** and enables the advanced OpenAI conversation, transcription, multilingual reply, and voice path.
+
 ## Features
 
-- AI conversations with civilians and suspects
+- AI/local conversations with civilians and suspects
 - LEO and backup officer conversations
 - Fire and EMS interaction
 - Air-unit / helicopter interaction
 - Exact NPC target locking
 - Soft-spoken voice support
-- Multilingual speech transcription and replies
+- Optional OpenAI multilingual speech transcription and replies
 - Autonomous backup behavior
 - Backup officers can assess a scene, take useful positions, and ask the primary officer what to handle next
 - Safer Code 3 pursuit-driving logic
 - Per-NPC conversation memory
-- OpenAI voice output with Windows TTS fallback
+- Windows TTS with optional OpenAI voice output
 - GitHub Releases auto-updater
 
 ## Requirements
@@ -26,23 +40,23 @@ NPC AI Talk v1.4.0 has been compiled successfully with GitHub Actions and is ava
 - RAGE Plugin Hook
 - LSPDFR
 - Windows with .NET Framework 4.8
-- OpenAI API key for AI speech/conversation features
+- **OpenAI API key is optional**
 
 ## Installation
 
 1. Download `NPC_AI_TALK_ACTION_JACKSON_v1.4.0.zip` from the Assets section below.
 2. Extract the ZIP.
 3. Copy `NpcAiTalk.dll` and `NpcAiTalk.ini` into your GTA V `Plugins\LSPDFR` folder.
-4. Set your OpenAI API key in Windows:
+4. Load LSPDFR and use the plugin in local mode with no API key.
+5. Optional: to enable advanced OpenAI features, set your API key in Windows:
 
 ```bat
 setx OPENAI_API_KEY "YOUR_OPENAI_API_KEY"
 ```
 
-5. Restart RAGE Plugin Hook / GTA V after setting the key.
-6. Load LSPDFR and test the plugin in game.
+6. Restart RAGE Plugin Hook / GTA V after setting or changing the key.
 
-**Keep your OpenAI API key private. Never post it in Discord, GitHub Issues, screenshots, or logs.**
+**Keep your OpenAI API key private. Never post it in Discord, GitHub Issues, screenshots, logs, or the INI file.**
 
 ## Controls
 
@@ -69,6 +83,7 @@ If something does not work, include:
 - NPC AI Talk version
 - RAGE Plugin Hook version
 - LSPDFR version
+- Whether you are using local mode or an OpenAI API key
 - What you were doing when the issue happened
 - What you expected to happen
 - Relevant `RAGEPluginHook.log` or error logs
