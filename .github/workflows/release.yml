@@ -1,0 +1,60 @@
+name: Publish NPC AI Talk Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract NPC AI Talk source
+        shell: pwsh
+        run: |
+          Expand-Archive -Path "source/NPC_AI_TALK_ACTION_JACKSON_GITHUB_AUTOBUILD_v1.4.0.zip" -DestinationPath "work" -Force
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore RAGE Plugin Hook SDK
+        shell: pwsh
+        working-directory: work
+        run: |
+          nuget install RagePluginHook -Version 1.124.0 -OutputDirectory packages -NonInteractive
+          if (!(Test-Path "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll")) { throw "RAGE Plugin Hook SDK DLL was not restored." }
+
+      - name: Build plugin
+        shell: pwsh
+        working-directory: work
+        run: |
+          msbuild NpcAiTalk.csproj /t:Clean,Build /p:Configuration=Release /p:Platform=AnyCPU
+          if (!(Test-Path "bin\Release\NpcAiTalk.dll")) { throw "NpcAiTalk.dll was not produced." }
+
+      - name: Package release
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force public_release | Out-Null
+          Copy-Item "work\bin\Release\NpcAiTalk.dll" "public_release\NpcAiTalk.dll"
+          Copy-Item "work\NpcAiTalk.ini" "public_release\NpcAiTalk.ini"
+          Copy-Item "README.md" "public_release\README.md"
+          Compress-Archive -Path "public_release\*" -DestinationPath "NPC_AI_TALK_ACTION_JACKSON_$env:GITHUB_REF_NAME.zip" -Force
+
+          New-Item -ItemType Directory -Force updater_release | Out-Null
+          Copy-Item "work\bin\Release\NpcAiTalk.dll" "updater_release\NpcAiTalk.dll"
+          Compress-Archive -Path "updater_release\*" -DestinationPath "NpcAiTalk_Update.zip" -Force
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" "NPC_AI_TALK_ACTION_JACKSON_$env:GITHUB_REF_NAME.zip" "NpcAiTalk_Update.zip" --repo "$env:GITHUB_REPOSITORY" --title "NPC AI Talk $env:GITHUB_REF_NAME - ACTION JACKSON" --generate-notes

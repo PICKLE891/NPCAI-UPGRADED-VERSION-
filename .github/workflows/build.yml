@@ -1,0 +1,57 @@
+name: Build NPC AI Talk
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract NPC AI Talk source
+        shell: pwsh
+        run: |
+          Expand-Archive -Path "source/NPC_AI_TALK_ACTION_JACKSON_GITHUB_AUTOBUILD_v1.4.0.zip" -DestinationPath "work" -Force
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore RAGE Plugin Hook SDK
+        shell: pwsh
+        working-directory: work
+        run: |
+          nuget install RagePluginHook -Version 1.124.0 -OutputDirectory packages -NonInteractive
+          if (!(Test-Path "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll")) { throw "RAGE Plugin Hook SDK DLL was not restored." }
+
+      - name: Build plugin
+        shell: pwsh
+        working-directory: work
+        run: |
+          msbuild NpcAiTalk.csproj /t:Clean,Build /p:Configuration=Release /p:Platform=AnyCPU
+          if (!(Test-Path "bin\Release\NpcAiTalk.dll")) { throw "NpcAiTalk.dll was not produced." }
+
+      - name: Create install package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build_artifact | Out-Null
+          Copy-Item "work\bin\Release\NpcAiTalk.dll" "build_artifact\NpcAiTalk.dll"
+          Copy-Item "work\NpcAiTalk.ini" "build_artifact\NpcAiTalk.ini"
+          Copy-Item "README.md" "build_artifact\README.md"
+          Compress-Archive -Path "build_artifact\*" -DestinationPath "NPC_AI_TALK_ACTION_JACKSON.zip" -Force
+
+      - name: Upload compiled plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: NPC-AI-TALK-ACTION-JACKSON
+          path: NPC_AI_TALK_ACTION_JACKSON.zip
+          if-no-files-found: error
