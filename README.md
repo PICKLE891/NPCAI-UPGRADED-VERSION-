@@ -4,6 +4,10 @@ AI-powered NPC interaction plugin project for **GTA V / LSPDFR / RAGE Plugin Hoo
 
 ## Highlights
 
+- **Hands-free traffic-stop conversations — no talk key required**
+- Case-aware local replies using available LSPDFR stop/persona context
+- NPCs do not invent unknown facts; they say when information is unavailable
+- Traffic-stop/stopped-ped conversations are calm and cooperative with no plugin-triggered fleeing or resistance
 - Works **without an OpenAI API key** using local command/response logic, Windows Speech Recognition, and Windows TTS
 - Optional OpenAI-powered conversations, transcription, multilingual replies, and voice when a key is configured
 - Talk to civilians and suspects
@@ -19,11 +23,19 @@ AI-powered NPC interaction plugin project for **GTA V / LSPDFR / RAGE Plugin Hoo
 - GitHub Releases auto-updater
 - **GitHub Actions builds the DLL automatically — no developer PC required for compilation**
 
+## Hands-Free Traffic Stops
+
+When you are close to the active traffic-stop or stopped-ped target, NPC AI Talk automatically listens for your speech. You do not need to press **N** first.
+
+The local no-key response system uses available LSPDFR scene/persona information for facts such as name, date of birth, citations and wanted status. If a requested fact is not available from the game context, the NPC says it does not know instead of inventing an answer.
+
+Hands-free mode defaults to traffic stops/stopped-ped contacts only. The normal **N** and **J** keys remain available as manual fallbacks.
+
 ## Automatic build
 
 This repository contains `.github/workflows/build.yml`.
 
-Every push to `main`/`master` builds the plugin on a Windows GitHub runner.
+Every push to `main` builds the plugin on a Windows GitHub runner.
 
 Go to:
 
@@ -61,7 +73,7 @@ LSPDFR APIs are discovered at runtime using reflection. If LSPDFR is loaded, the
 
 **An OpenAI API key is not required to run NPC AI Talk.**
 
-Without a key, the plugin uses local command/response logic plus Windows Speech Recognition and Windows TTS. This supports common civilian, suspect, LEO, Fire, EMS, and air-unit commands without making OpenAI API calls.
+Without a key, the plugin uses local case-aware command/response logic plus Windows Speech Recognition and Windows TTS.
 
 A key is optional and enables the advanced OpenAI conversation/transcription/voice path.
 
@@ -77,8 +89,9 @@ Restart RAGE Plugin Hook / GTA V after setting it.
 
 ## Controls
 
+- **Hands-free** — speak normally during an active traffic stop/stopped-ped contact
 - **L** — lock/unlock exact NPC or responder
-- **N** — talk to civilian/suspect
+- **N** — manual talk fallback for civilian/suspect
 - **J** — radio-talk to LEO / Fire / EMS / Air
 - **F9** — manual update check
 - **F10** — reload config
