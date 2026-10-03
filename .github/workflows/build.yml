@@ -15,10 +15,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract NPC AI Talk source
+      - name: Rebuild and extract NPC AI Talk source
         shell: pwsh
         run: |
-          Expand-Archive -Path "source/NPC_AI_TALK_ACTION_JACKSON_GITHUB_AUTOBUILD_v1.4.0.zip" -DestinationPath "work" -Force
+          $parts = Get-ChildItem "source/parts/part*.txt" | Sort-Object Name
+          if ($parts.Count -lt 1) { throw "Source parts were not found." }
+          $b64 = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
+          $bytes = [Convert]::FromBase64String($b64)
+          [IO.File]::WriteAllBytes("source.zip", $bytes)
+          Expand-Archive -Path "source.zip" -DestinationPath "work" -Force
+          if (!(Test-Path "work/NpcAiTalk.csproj")) { throw "Source archive did not extract correctly." }
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
