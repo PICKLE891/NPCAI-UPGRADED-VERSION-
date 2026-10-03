@@ -26,6 +26,33 @@ jobs:
           Expand-Archive -Path "source.zip" -DestinationPath "work" -Force
           if (!(Test-Path "work/NpcAiTalk.csproj")) { throw "Source archive did not extract correctly." }
 
+      - name: Apply RAGE SDK compatibility fixes
+        shell: pwsh
+        working-directory: work
+        run: |
+          $client = "src\OpenAiNpcClient.cs"
+          $text = Get-Content $client -Raw
+          $text = $text.Replace("private static string BuildSystemPrompt", "private string BuildSystemPrompt")
+          Set-Content $client $text -Encoding UTF8
+
+          $backup = "src\BackupAutonomy.cs"
+          $text = Get-Content $backup -Raw
+          $text = $text.Replace("Dictionary<int, OfficerState>", "Dictionary<PoolHandle, OfficerState>")
+          $text = $text.Replace("new Dictionary<int, OfficerState>()", "new Dictionary<PoolHandle, OfficerState>()")
+          $text = $text.Replace("int handle = officer.Handle;", "PoolHandle handle = officer.Handle;")
+          $text = $text.Replace("HashSet<int> live", "HashSet<PoolHandle> live")
+          $text = $text.Replace("new HashSet<int>(", "new HashSet<PoolHandle>(")
+          $text = $text.Replace("List<int> remove", "List<PoolHandle> remove")
+          $text = $text.Replace("new List<int>()", "new List<PoolHandle>()")
+          $text = $text.Replace("KeyValuePair<int, OfficerState>", "KeyValuePair<PoolHandle, OfficerState>")
+          $text = $text.Replace("foreach (int key in remove)", "foreach (PoolHandle key in remove)")
+          Set-Content $backup $text -Encoding UTF8
+
+          $proj = "NpcAiTalk.csproj"
+          $text = Get-Content $proj -Raw
+          $text = $text.Replace("AnyCPU", "x64")
+          Set-Content $proj $text -Encoding UTF8
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
@@ -49,7 +76,7 @@ jobs:
         shell: pwsh
         working-directory: work
         run: |
-          msbuild NpcAiTalk.csproj /t:Clean,Build /p:Configuration=Release /p:Platform=AnyCPU
+          msbuild NpcAiTalk.csproj /t:Clean,Build /p:Configuration=Release /p:Platform=x64
           if (!(Test-Path "bin\Release\NpcAiTalk.dll")) { throw "NpcAiTalk.dll was not produced." }
 
       - name: Create install package
