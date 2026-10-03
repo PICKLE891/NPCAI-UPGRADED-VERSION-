@@ -1,8 +1,12 @@
 name: Publish NPC AI Talk Release
 
 on:
+  workflow_dispatch:
   push:
+    branches: [ main ]
     tags: [ 'v*' ]
+    paths:
+      - 'RELEASE_TRIGGER.txt'
 
 permissions:
   contents: write
@@ -14,10 +18,57 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract NPC AI Talk source
+      - name: Set release version
         shell: pwsh
         run: |
-          Expand-Archive -Path "source/NPC_AI_TALK_ACTION_JACKSON_GITHUB_AUTOBUILD_v1.4.0.zip" -DestinationPath "work" -Force
+          if ($env:GITHUB_REF_TYPE -eq "tag") {
+            $version = $env:GITHUB_REF_NAME
+          } elseif (Test-Path "RELEASE_TRIGGER.txt") {
+            $version = (Get-Content "RELEASE_TRIGGER.txt" -Raw).Trim()
+          } else {
+            $version = "v1.4.0"
+          }
+          if ($version -notmatch '^v\d+\.\d+\.\d+$') { throw "Invalid release version: $version" }
+          "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Publishing $version"
+
+      - name: Rebuild and extract NPC AI Talk source
+        shell: pwsh
+        run: |
+          $parts = Get-ChildItem "source/parts/part*.txt" | Sort-Object Name
+          if ($parts.Count -lt 1) { throw "Source parts were not found." }
+          $b64 = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
+          $bytes = [Convert]::FromBase64String($b64)
+          [IO.File]::WriteAllBytes("source.zip", $bytes)
+          Expand-Archive -Path "source.zip" -DestinationPath "work" -Force
+          if (!(Test-Path "work/NpcAiTalk.csproj")) { throw "Source archive did not extract correctly." }
+
+      - name: Apply RAGE SDK compatibility fixes
+        shell: pwsh
+        working-directory: work
+        run: |
+          $client = "src\OpenAiNpcClient.cs"
+          $text = Get-Content $client -Raw
+          $text = $text.Replace("private static string BuildSystemPrompt", "private string BuildSystemPrompt")
+          Set-Content $client $text -Encoding UTF8
+
+          $backup = "src\BackupAutonomy.cs"
+          $text = Get-Content $backup -Raw
+          $text = $text.Replace("Dictionary<int, OfficerState>", "Dictionary<PoolHandle, OfficerState>")
+          $text = $text.Replace("new Dictionary<int, OfficerState>()", "new Dictionary<PoolHandle, OfficerState>()")
+          $text = $text.Replace("int handle = officer.Handle;", "PoolHandle handle = officer.Handle;")
+          $text = $text.Replace("HashSet<int> live", "HashSet<PoolHandle> live")
+          $text = $text.Replace("new HashSet<int>(", "new HashSet<PoolHandle>(")
+          $text = $text.Replace("List<int> remove", "List<PoolHandle> remove")
+          $text = $text.Replace("new List<int>()", "new List<PoolHandle>()")
+          $text = $text.Replace("KeyValuePair<int, OfficerState>", "KeyValuePair<PoolHandle, OfficerState>")
+          $text = $text.Replace("foreach (int key in remove)", "foreach (PoolHandle key in remove)")
+          Set-Content $backup $text -Encoding UTF8
+
+          $proj = "NpcAiTalk.csproj"
+          $text = Get-Content $proj -Raw
+          $text = $text.Replace("AnyCPU", "x64")
+          Set-Content $proj $text -Encoding UTF8
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -30,13 +81,18 @@ jobs:
         working-directory: work
         run: |
           nuget install RagePluginHook -Version 1.124.0 -OutputDirectory packages -NonInteractive
-          if (!(Test-Path "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll")) { throw "RAGE Plugin Hook SDK DLL was not restored." }
+          $dll = Get-ChildItem -Path "packages\RagePluginHook.1.124.0" -Filter "RagePluginHook.dll" -Recurse | Select-Object -First 1
+          if ($null -eq $dll) { throw "RAGE Plugin Hook DLL was not found in the NuGet package." }
+          New-Item -ItemType Directory -Force "packages\RagePluginHook.1.124.0\SDK" | Out-Null
+          if ($dll.FullName -ne (Join-Path (Get-Location) "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll")) {
+            Copy-Item $dll.FullName "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll" -Force
+          }
 
       - name: Build plugin
         shell: pwsh
         working-directory: work
         run: |
-          msbuild NpcAiTalk.csproj /t:Clean,Build /p:Configuration=Release /p:Platform=AnyCPU
+          msbuild NpcAiTalk.csproj /t:Clean,Build /p:Configuration=Release /p:Platform=x64
           if (!(Test-Path "bin\Release\NpcAiTalk.dll")) { throw "NpcAiTalk.dll was not produced." }
 
       - name: Package release
@@ -46,7 +102,7 @@ jobs:
           Copy-Item "work\bin\Release\NpcAiTalk.dll" "public_release\NpcAiTalk.dll"
           Copy-Item "work\NpcAiTalk.ini" "public_release\NpcAiTalk.ini"
           Copy-Item "README.md" "public_release\README.md"
-          Compress-Archive -Path "public_release\*" -DestinationPath "NPC_AI_TALK_ACTION_JACKSON_$env:GITHUB_REF_NAME.zip" -Force
+          Compress-Archive -Path "public_release\*" -DestinationPath "NPC_AI_TALK_ACTION_JACKSON_$env:RELEASE_VERSION.zip" -Force
 
           New-Item -ItemType Directory -Force updater_release | Out-Null
           Copy-Item "work\bin\Release\NpcAiTalk.dll" "updater_release\NpcAiTalk.dll"
@@ -57,4 +113,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$env:GITHUB_REF_NAME" "NPC_AI_TALK_ACTION_JACKSON_$env:GITHUB_REF_NAME.zip" "NpcAiTalk_Update.zip" --repo "$env:GITHUB_REPOSITORY" --title "NPC AI Talk $env:GITHUB_REF_NAME - ACTION JACKSON" --generate-notes
+          gh release create "$env:RELEASE_VERSION" `
+            "NPC_AI_TALK_ACTION_JACKSON_$env:RELEASE_VERSION.zip" `
+            "NpcAiTalk_Update.zip" `
+            --repo "$env:GITHUB_REPOSITORY" `
+            --title "NPC AI Talk $env:RELEASE_VERSION - ACTION JACKSON" `
+            --generate-notes `
+            --target main
