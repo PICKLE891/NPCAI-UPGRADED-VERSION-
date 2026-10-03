@@ -37,7 +37,13 @@ jobs:
         working-directory: work
         run: |
           nuget install RagePluginHook -Version 1.124.0 -OutputDirectory packages -NonInteractive
-          if (!(Test-Path "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll")) { throw "RAGE Plugin Hook SDK DLL was not restored." }
+          $dll = Get-ChildItem -Path "packages\RagePluginHook.1.124.0" -Filter "RagePluginHook.dll" -Recurse | Select-Object -First 1
+          if ($null -eq $dll) { throw "RAGE Plugin Hook DLL was not found in the NuGet package." }
+          New-Item -ItemType Directory -Force "packages\RagePluginHook.1.124.0\SDK" | Out-Null
+          if ($dll.FullName -ne (Join-Path (Get-Location) "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll")) {
+            Copy-Item $dll.FullName "packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll" -Force
+          }
+          Write-Host "Using RAGE Plugin Hook SDK: packages\RagePluginHook.1.124.0\SDK\RagePluginHook.dll"
 
       - name: Build plugin
         shell: pwsh
