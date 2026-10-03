@@ -87,6 +87,10 @@ Restart RAGE Plugin Hook / GTA V after setting it.
 - **F9** — manual update check
 - **F10** — reload config
 
+## Discord
+
+**Join here:** https://discord.gg/qpP2EXsNgD
+
 ## Creator
 
 **ACTION JACKSON**
