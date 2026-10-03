@@ -76,6 +76,14 @@ Updater asset name:
 
 That update package is included in the Assets section below.
 
+## Copyright and License
+
+**Copyright © 2026 ACTION JACKSON. All Rights Reserved.**
+
+NPC AI Talk is proprietary software. Personal, non-commercial gameplay use is permitted. Redistribution, resale, re-uploading, repackaging, publishing modified builds, or claiming ownership is not permitted without prior written permission from ACTION JACKSON.
+
+The full proprietary license is included with the download. Third-party components and dependencies remain subject to their own licenses and rights.
+
 ## Support / Bug Reports
 
 If something does not work, include:
