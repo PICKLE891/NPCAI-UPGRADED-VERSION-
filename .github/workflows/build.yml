@@ -53,6 +53,11 @@ jobs:
           $text = $text.Replace("AnyCPU", "x64")
           Set-Content $proj $text -Encoding UTF8
 
+      - name: Apply no-API-key fallback
+        shell: pwsh
+        run: |
+          .\build-patches\apply-no-key-fallback.ps1 -WorkRoot "work"
+
       - name: Upload source snapshot
         uses: actions/upload-artifact@v4
         with:
