@@ -44,6 +44,9 @@ FEATURES
 AUTO UPDATES
 Updater asset: NpcAiTalk_Update.zip
 
+DISCORD
+Join here: https://discord.gg/qpP2EXsNgD
+
 IMPORTANT
 Keep your OpenAI API key private. Do not post it in Discord, GitHub Issues, screenshots, or logs.
 
