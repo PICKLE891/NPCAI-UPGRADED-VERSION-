@@ -7,6 +7,7 @@ on:
     tags: [ 'v*' ]
     paths:
       - 'RELEASE_TRIGGER.txt'
+      - '.github/workflows/release.yml'
 
 permissions:
   contents: write
@@ -70,6 +71,11 @@ jobs:
           $text = $text.Replace("AnyCPU", "x64")
           Set-Content $proj $text -Encoding UTF8
 
+      - name: Apply no-API-key fallback
+        shell: pwsh
+        run: |
+          .\build-patches\apply-no-key-fallback.ps1 -WorkRoot "work"
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
@@ -108,15 +114,30 @@ jobs:
           Copy-Item "work\bin\Release\NpcAiTalk.dll" "updater_release\NpcAiTalk.dll"
           Compress-Archive -Path "updater_release\*" -DestinationPath "NpcAiTalk_Update.zip" -Force
 
-      - name: Create GitHub Release
+      - name: Publish or update GitHub Release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$env:RELEASE_VERSION" `
-            "NPC_AI_TALK_ACTION_JACKSON_$env:RELEASE_VERSION.zip" `
-            "NpcAiTalk_Update.zip" `
-            --repo "$env:GITHUB_REPOSITORY" `
-            --title "NPC AI Talk $env:RELEASE_VERSION - ACTION JACKSON" `
-            --generate-notes `
-            --target main
+          $installZip = "NPC_AI_TALK_ACTION_JACKSON_$env:RELEASE_VERSION.zip"
+          if (gh release view "$env:RELEASE_VERSION" --repo "$env:GITHUB_REPOSITORY" 2>$null) {
+            gh release upload "$env:RELEASE_VERSION" `
+              "$installZip" `
+              "NpcAiTalk_Update.zip" `
+              "release-assets/README.txt#README.txt" `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --clobber
+            gh release edit "$env:RELEASE_VERSION" `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --title "NPC AI Talk $env:RELEASE_VERSION - ACTION JACKSON" `
+              --notes-file "RELEASE_NOTES_v1.4.0.md"
+          } else {
+            gh release create "$env:RELEASE_VERSION" `
+              "$installZip" `
+              "NpcAiTalk_Update.zip" `
+              "release-assets/README.txt#README.txt" `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --title "NPC AI Talk $env:RELEASE_VERSION - ACTION JACKSON" `
+              --notes-file "RELEASE_NOTES_v1.4.0.md" `
+              --target main
+          }
