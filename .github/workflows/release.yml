@@ -1,4 +1,5 @@
 name: Publish NPC AI Talk Release
+# v1.4.0 hands-free traffic-stop hotfix
 
 on:
   workflow_dispatch:
