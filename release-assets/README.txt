@@ -53,6 +53,12 @@ FEATURES
 - Windows TTS with optional OpenAI voice output
 - GitHub Releases auto-updater
 
+COPYRIGHT AND LICENSE
+Copyright © 2026 ACTION JACKSON. All Rights Reserved.
+NPC AI Talk is proprietary software. Personal, non-commercial gameplay use is permitted.
+Redistribution, resale, re-uploading, repackaging, publishing modified builds, or claiming ownership is not permitted without prior written permission from ACTION JACKSON.
+See LICENSE included with the download for full terms. Third-party components and dependencies remain subject to their own licenses and rights.
+
 AUTO UPDATES
 Updater asset: NpcAiTalk_Update.zip
 
