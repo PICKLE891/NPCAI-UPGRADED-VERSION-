@@ -75,6 +75,10 @@ If something does not work, include:
 
 Do **not** include your OpenAI API key.
 
+## Discord
+
+**Join here:** https://discord.gg/qpP2EXsNgD
+
 ## Creator
 
 **ACTION JACKSON**
