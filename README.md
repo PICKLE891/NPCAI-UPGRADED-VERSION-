@@ -87,6 +87,14 @@ Restart RAGE Plugin Hook / GTA V after setting it.
 
 **Join here:** https://discord.gg/qpP2EXsNgD
 
+## Copyright and License
+
+**Copyright © 2026 ACTION JACKSON. All Rights Reserved.**
+
+NPC AI Talk is proprietary software. Personal, non-commercial gameplay use is permitted. Redistribution, resale, re-uploading, repackaging, publishing modified builds, or claiming ownership is not permitted without prior written permission from ACTION JACKSON.
+
+See the `LICENSE` file for the full terms. Third-party components and dependencies remain subject to their own licenses and rights.
+
 ## Creator
 
 **ACTION JACKSON**
