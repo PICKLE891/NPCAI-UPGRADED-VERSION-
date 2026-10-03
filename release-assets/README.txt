@@ -4,15 +4,20 @@ NPC AI Talk v1.4.0 — ACTION JACKSON
 STATUS
 Public Beta. This build compiled successfully with GitHub Actions. Real GTA V/LSPDFR in-game testing is still recommended before treating it as fully stable.
 
+HANDS-FREE TRAFFIC STOPS
+- No N key press is required during an active traffic stop or stopped-ped contact.
+- Walk up near the current stop target and speak normally.
+- The plugin automatically listens for officer speech.
+- Manual N remains available as a fallback.
+
+TRUTHFUL / CASE-AWARE NPC RESPONSES
+- Local mode uses available LSPDFR scene/persona facts such as name, date of birth, citations and wanted status.
+- NPCs do not invent unknown stop reasons, evidence, weapons, impairment, warrants or admissions.
+- If a fact is not available from the game, the NPC says it does not know.
+- During traffic stops/stopped-ped contacts the plugin keeps the NPC cooperative and does not trigger fleeing or resistance.
+
 NO API KEY REQUIRED
-NPC AI Talk works without an OpenAI API key.
-
-Without a key it uses:
-- Local command/response logic
-- Windows Speech Recognition for officer voice input
-- Windows TTS for NPC/responder voice output
-- Built-in civilian, suspect, LEO, Fire, EMS and air-unit responses
-
+NPC AI Talk works without an OpenAI API key using local case-aware logic, Windows Speech Recognition and Windows TTS.
 An OpenAI API key is OPTIONAL and enables advanced OpenAI conversation, transcription, multilingual reply and voice features.
 
 REQUIREMENTS
@@ -25,21 +30,24 @@ REQUIREMENTS
 INSTALLATION
 1. Download NPC_AI_TALK_ACTION_JACKSON_v1.4.0.zip from the GitHub release.
 2. Extract the ZIP.
-3. Copy NpcAiTalk.dll and NpcAiTalk.ini into your GTA V\Plugins\LSPDFR folder.
-4. Load LSPDFR. Local mode works without an API key.
-5. Optional: to enable advanced OpenAI features, set your API key in Windows:
+3. Copy NpcAiTalk.dll and NpcAiTalk.ini into your GTA V\Plugins\LSPDFR folder and replace the older copies.
+4. Load LSPDFR.
+5. Start a traffic stop, approach the target and speak normally.
+6. Optional: to enable advanced OpenAI features, set your API key in Windows:
    setx OPENAI_API_KEY "YOUR_OPENAI_API_KEY"
-6. Restart RAGE Plugin Hook / GTA V after setting or changing the key.
+7. Restart RAGE Plugin Hook / GTA V after setting or changing the key.
 
 CONTROLS
+Hands-free = Speak normally during an active traffic stop/stopped-ped contact
 L   = Lock/unlock exact NPC or responder
-N   = Talk to civilian/suspect
+N   = Manual talk fallback for civilian/suspect
 J   = Radio-talk to LEO / Fire / EMS / Air
 F9  = Manual update check
 F10 = Reload configuration
 
 FEATURES
-- Local no-key NPC command/response mode
+- Hands-free traffic-stop conversations
+- Case-aware no-key NPC responses
 - Optional OpenAI conversations with civilians and suspects
 - LEO / backup officer conversations
 - Fire / EMS interaction
