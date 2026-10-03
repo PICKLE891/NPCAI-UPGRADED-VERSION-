@@ -9,6 +9,8 @@ function Read-Normalized([string]$Path) {
 }
 
 function Replace-Required([string]$Text, [string]$Old, [string]$New, [string]$Label) {
+    $Old = $Old.TrimStart([char]10)
+    $New = $New.TrimStart([char]10)
     if (-not $Text.Contains($Old)) {
         throw "No-key fallback patch point not found: $Label"
     }
