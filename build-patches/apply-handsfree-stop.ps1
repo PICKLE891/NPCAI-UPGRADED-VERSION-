@@ -207,7 +207,7 @@ $text = Read-Normalized $clientPath
 $text = Replace-Required $text @'
                 return LocalNpcBrain.Generate(playerSpeech, role, radioMode);
 '@ @'
-                return LocalNpcBrain.Generate(playerSpeech, role, radioMode, context, memory);
+                return LocalNpcBrain.Generate(playerSpeech, role, radioMode, sceneContext, memory);
 '@ "OpenAiNpcClient local context/memory"
 
 $text = Replace-Required $text @'
